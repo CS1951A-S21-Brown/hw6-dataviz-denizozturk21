@@ -6,13 +6,22 @@
         <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
         <link rel="stylesheet" href="main.css"/>
         <!--Feel free to add more CSS files as needed-->
-        <script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+        <script src="https://d3js.org/d3.v6.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.min.css">
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.min.js"> </script>
     </head>
 <body>
     <div class="header">
         <h3>Assignment 6 &laquo; Data Visualization Dashboard &raquo;</h3>
     </div>
     <!--  We included a basic HTML structure for the 3 graphs here. Feel free to change this if you'd like  -->
+    <div class="center">
+        <input id="yearSlider" type="text" class="span2"
+               data-slider-min="1872" data-slider-max="2020" data-slider-step="1"
+               data-slider-value="[2010,2020]" data-slider-orientation="vertical"/>
+        
+        
+    </div>
     <div class="row">
         <div class="col-lg-6">
             <div id="graph1"></div>
@@ -23,6 +32,7 @@
         </div>
     </div>
     <!--Feel free to add more JavaScript files as needed-->
+    
     <script type="text/javascript" src="main.js"></script>
 </body>
 </html>
