@@ -1,14 +1,14 @@
 // Add your JavaScript code here
 const MAX_WIDTH = Math.max(1080, window.innerWidth);
-const MAX_HEIGHT = 720;
-const margin = {top: 40, right: 100, bottom: 40, left: 175};
+const MAX_HEIGHT = 70;
+const margin = {top: 40, right: 100, bottom: 40, left: 100};
 
 let WC_YEAR_LATEST = 2018;
 let WC_YEAR_SEC = 2014;
 // Assumes the same graph width, height dimensions as the example dashboard. Feel free to change these if you'd like
 let graph_1_width = 500, graph_1_height = 500;
-let graph_2_width = (MAX_WIDTH / 2) - 10, graph_2_height = 275;
-let graph_3_width = MAX_WIDTH / 2, graph_3_height = 575;
+let graph_2_width = (MAX_WIDTH / 2) - 10, graph_2_height = 500;
+let graph_3_width = MAX_WIDTH / 2, graph_3_height = 250;
 
 let g1 = d3.select("#graph1").append("svg");
 g1.attr("width", graph_1_width).attr("heigth", graph_1_height)
@@ -16,45 +16,30 @@ g1.attr("width", graph_1_width).attr("heigth", graph_1_height)
 
 
 let g2 = d3.select("#graph2").append("svg");
-g2.attr("width", graph_2_width).attr("heigth", graph_2_height)
+g2.attr("width", graph_2_width).attr("heigth", graph_2_height+50)
 .attr("transform", `translate(${margin.left},${margin.top})`).append("g");
 
 let g3 = d3.select("#graph3").append("svg");
 g3.attr("width", graph_3_width).attr("heigth", graph_3_height)
-.attr("transform", `translate(${margin.left},${margin.top})`).append("g");
+.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
 //add title here
 g1.append("text").text("Annual Seasons").attr("transform",
 `translate(${(500) / 2},
-${(500 ) + 15})`);
+${(500) + 15})`);
 
 g1.append("text").text("Number of Games").attr("transform",
 `translate(${(graph_1_width-margin.left-margin.right) / 2},
-${(graph_1_height-margin.bottom-margin.top ) /2})`);
+${(graph_1_height-margin.bottom-margin.top) /2})`);
 //var coloring = d3.scaleLinear().domain([1,10])
  // .range(["white", "blue"]);
  let coloring = d3.scaleOrdinal()
     .range(d3.quantize(d3.interpolateHcl("#D03B12", "#12D021"), 10));
-
-g2.append("text").attr("transform",
-`translate(${(graph_2_width-margin.left-margin.right) / 2},
-${-15})`).text("Nations with the highest winning ratios");
-
-g2.append("text").text("Winning Percentage").attr("transform",
-`translate(100,100)`);
-
-g3.append("text").text("Opponent Average Winning Percentage").attr("transform",
-`translate(${(graph_3_width-margin.left-margin.right) / 2},
-${(graph_3_height-margin.bottom-margin.top ) /2})`);
-
-g3.append("text").text("Winning Percentage").attr("transform",
-`translate(${(graph_3_width-margin.left-margin.right) / 2},
-${-15})`);
-
 var sliderPlaceholder1 = 2010;
 var sliderPlaceholder2 = 2020;
 
 let yearSlider = new Slider('#yearSlider',{reversed : true});
+
 yearSlider.on('slide', function(t){
     //let temp = $('#yearSlider').val();
     if(t[0] != null) {
@@ -96,27 +81,34 @@ yearSlider.on('slide', function(t){
             }
             count++;
         }
-        x_range = [0, 250];
-        y_range = [0, 250];
-        var x_axis = d3.scaleLinear().range(x_range);
-        var y_axis = d3.scaleBand().range(y_range);
         let setData = Array.from(dict).map(([season,games]) => ({season,games}));
-        setData.sort((game1, game2) => game2.season - game1.season).slice(0,10);
-        coloring.domain(setData.map(function(game) {return parseInt(game.season)}));
-        y_axis.domain(setData.map(function(game) {return parseInt(game.season)}));
-        x_axis.domain([0, latest]);
+        x_range = [0, graph_1_width];
+        y_range = [graph_1_height, 0];
+        setData.sort((game1, game2) => game2.season - game1.season);
+        var xd = d3.scaleLinear().range(x_range);
+        var yd = d3.scaleLinear().range(y_range);
+        
+        coloring.domain(setData.map(function(game) {return parseInt(game.games)}));
+        yd.domain(setData.map(function(game) {return parseInt(game.season)}));
+        xd.domain([0, 1200]);
+        y_axis = g1.append("g");
+        y_axis.call(d3.axisLeft(yd));
+        //g1.append("g").call(d3.axisBottom(x_axis));
+        setData = setData.slice(0,10);
         console.log(setData);
-        g1.selectAll("text").data(setData).enter().append("text").text(function(game){return parseInt(game.games)})
-        .attr("y", function(game){return y_axis(parseInt(game.season))})
-        .attr("x", x_axis(0))
-        g1.selectAll("rect").data(setData).enter().append("rect")
-        .attr("y", function(game){return y_axis(parseInt(game.season))})
-        .attr("x", function(game){return x_axis(parseInt(game.games))})
-        .attr("height",y_axis.bandwidth())
-        .attr("width",function(game){return x_axis(parseInt(game.games))})
+        console.log("setdata above");
+        bs = g1.selectAll("rect").data(setData);
+        g1.selectAll("text").data(setData).enter().append("text").merge(g1.selectAll("text").data(setData)).text(function(game){return parseInt(game.games)})
+        .attr("y", function(game){console.log(parseInt(game.season)); return yd(parseInt(game.season))})
+        .attr("x",function(game){return xd(parseInt(game.games))})
+        bs.enter().append("rect").merge(bs)
+        .attr("y", function(game){return (yd(game.season)/10)+400})
+        .attr("x",  xd(0))
+        .attr("height", function(game){graph_1_height - (yd(parseInt(game.season))/10)+400})
+        .attr("width",function(game){return xd(parseInt(game.games))})
         .attr("fill",function(game){return coloring(game.games)});
-        //g1.selectAll("text").data(setData).exit().remove();
-        //g1.selectAll("rect").data(setData).exit().remove();  
+        g1.selectAll("text").data(setData).exit().remove();
+        g1.selectAll("rect").data(setData).exit().remove();  
 })});
 
 d3.csv("/data/football.csv").then(function(games) {
@@ -161,7 +153,7 @@ d3.csv("/data/football.csv").then(function(games) {
         }
     }
     console.log(teamMap);
-    var averages = [];
+    //var averages = [];
     function forAllTeams(v, k, m) {
         m.get(k).set("Win Percentage", (m.get(k).get("Wins")+(m.get(k).get("Ties") * 0.5))/m.get(k).get("Games played"));
     }
@@ -179,22 +171,64 @@ d3.csv("/data/football.csv").then(function(games) {
          var numRivals = temp.length;
          var numRivalsAvg = sum/numRivals;
          console.log( tempW - sum/numRivals)
-         averages.id = k;
-         averages.score = tempW - sum/numRivals;
-    }
+         //averages.score = tempW - sum/numRivals;
+         teamMap.get(k).set("Rival Performance", (tempW - sum/numRivals));
+         console.log("above");    }
+    teams = [];
     teamMap.forEach(forAllTeams);
     teamMap.forEach(forAllTeams2);
+    function forAllToArray(v, k, m) {
+        teams.push([k, m.get(k).get("Win Percentage"), m.get(k).get("Rival Performance")]);
+    }
+    teamMap.forEach(forAllToArray);
+    console.log(teams);
+    teams.sort((t1,t2)=>t2[1]-t1[1]);
+    console.log(teams);
+    teams = teams.slice(0,10);
     console.log(teamMap);
-    r = [-100,100];
-    r2 = [0,100];
-    var y = d3.scaleLinear().range([-600,600]).domain(r);
-    var x = d3.scaleLinear().range([0,100]).domain(r2);
-    g3.append("g").call(d3.axisLeft(y));
-    g3.append("g").call(d3.axisBottom(x)).attr("transform", "translate(0, 100)");
-    //Array.from(teamMap).map(([season,games]) => ({season,games}));
-    console.log(averages);
-    g3.append("g").selectAll("dot").data(averages).enter()
-    .append("circle").attr("cy", function(team){return team}).attr("cx", function(team){return team}).attr("r", 5);
+    var x = d3.scaleLinear()
+    //.domain()
+    .range([ 0, graph_3_width -margin.left - margin.right ]).domain([0,d3.max(teams, function(d){return parseInt(d[0])})]);
+  g3.append("g")
+    .attr("transform", "translate(0," + graph_3_height + ")")
+    .call(d3.axisBottom(x));
+    console.log(teams[0][0]);
+    console.log(teams[0][1]);
+    console.log(teams[0][2]);
+  // Add Y axis
+  var y = d3.scaleBand()
+    //
+    .range([0, graph_3_height-margin.top-margin.bottom])
+    .domain(teams.map(function(d){ return d[1] }));
+  g3.append("g")
+    .call(d3.axisLeft(y));
+  var z = d3.scaleLinear()
+    .domain([0, 1])
+    .range([5, 30]);
+  var myColor = d3.scaleOrdinal()
+    .domain([0, 10])
+    .range(d3.schemeSet2);
+    console.log("teams below");
+    console.log(teams);
+   /* g3.enter().append("circle").data(teams).transition().duration(1000)
+    .attr("cx", function (d) { return x(Date.parse(d[0])); } )
+    .attr("cy", function (d) { return y(parseInt(d[1])); } )
+    .attr("r", 4);
+    g3.exit().remove();*/
+    
+  g3.append('g')
+    .selectAll("dot")
+    .data(teams)
+    .enter()
+    .append("circle")
+      .attr("class", "bubbles")
+      .attr("cx", function (d) { return x((d[0])); } )
+      .attr("cy", function (d) { return y((d[1])); } )
+      .attr("r", function (d) { return z(d[2]); } )
+      .style("fill", function (d) { return myColor(d[2]); } );
+    
+    g3.exit().remove();
+    //g3.selectAll("rect").data(teams).exit().remove();
 });
 
 d3.csv("/data/football.csv").then(function(games) {
@@ -243,29 +277,35 @@ d3.csv("/data/football.csv").then(function(games) {
     console.log(teams);
     teams.sort((t1,t2)=>t2[1]-t1[1]);
     console.log(teams);
-    var x = d3.scaleBand()
-      .domain(teams.map(function(team) { return team[0]}))     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
-      .range([0, 100]);
-        g2.append("g")
-      .attr("transform", "translate(0," + 100 + ")")
-      .call(d3.axisBottom(x));
-
-  // Y axis: scale and draw:
-    var y = d3.scaleLinear()
-      .range([1000, 0]);
-      y.domain([0, d3.max(teams, function(team) { return team[1]; })]);   // d3.hist has to be called before the Y axis obviously
+    teams = teams.slice(0,10);
+    console.log(teams);
+    var x = d3.scaleBand().padding(0.1)
+        .domain(teams.map(function(team) { return team[0]}))
+        .range([0, graph_2_width - margin.left - margin.right]);
     g2.append("g")
-      .call(d3.axisLeft(y));
-
-  // append the bar rectangles to the svg element
-  g2.selectAll("rect")
-      .data(teams).enter()
-      .append("rect")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(0," + graph_2_height + ")")
+        .style("text-anchor", "end");
+    var y = d3.scaleLinear().domain([0, 1])
+      .range([graph_2_height-margin.top-margin.bottom, 0])
+    ;
+    g2.append("g").call(d3.axisLeft(y));
+    g2.selectAll("rect").data(teams).enter()
+        .append("rect")
+        .attr("transform", `translate(${(graph_2_width - margin.left - margin.right) / 2},
+                                            ${(graph_2_height - margin.top - margin.bottom) + 15})`)
+        .merge(g2.selectAll("rect").data(teams))
+        //.attr("fill", function(d) { return color(d[attr]) })    // OPTIONAL for students
         .attr("x", function(team) { return x(team[0])})
-        .attr("y", function(team) { return 1000-y(team[1])})
-        .attr("width", x.bandwidth)
-        .attr("height", function(d) {
-        return y(d);
-       });
-        
+        .attr("y", function(team) { return (graph_2_height - margin.top - margin.bottom) - y(team[1])})
+        .attr("height", function(team) { return y(team[1])})
+        .attr("width", x.bandwidth);
+    g2.append("text")
+        .attr("transform", `translate(${(graph_2_width - margin.left - margin.right) / 2},
+                                            ${(graph_2_height - margin.top - margin.bottom) + 15})`)
+        .style("text-anchor", "middle")
+        .text("Count");
+    g2.selectAll("text").data(teams).exit().remove();
+    g2.selectAll("rect").data(teams).exit().remove();
 });
