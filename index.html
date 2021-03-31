@@ -29,10 +29,25 @@
         </div>
         <div class="col-lg-6">
             <div id="graph3"></div>
+            <text>due to some bugs some ticks and axis values may be hidden in the dashboard for all graphs, but it's there in inspect element</text>
         </div>
     </div>
     <!--Feel free to add more JavaScript files as needed-->
-    
+    <div>
+        <ul>
+            <ul> <li>I show a bar chart that shows 10 years with the most amount of games. This range can be selected from the slider next on the left side of the dashboard. When hovering over the slider, the user can pick their own range and see top 10 years with the most amount of total games.</li>
+                <li>I calculate the winning percentage by dividing the number of wins and half the number of ties by the total number of games they played. Then I create a bar chart that shows the highest 10 of those ratios by country.</li>
+                <li>I use the same winning percentage only on World Cup games. However, I also calculate each teams rivals’ winning percentage average to see how likely they are to win the World Cup next time. Winning percentage can be vastly different if a team was doing well just by not playing against the best teams. If a team’s winning percentage is higher compared to its rivals, we should view that as a lower risk. Hence, the lower the risk is the bigger the dots get on the graph. This is to eliminate bias just by winning percentage. If a smaller dot is higher than a big dot, than predicting based on past history for the team represented by the smaller dot might be riskier than its winning percentage shows. So the size of the dots are essentially a risk measuring tool to bet based on winning averages.
+                </li>
+            </ul>
+           
+            <li>D3 is good for visualizing data for multiple reasons. One thing I liked was not having to generate an SVG by hard-coding it. It required little time to transition from data structures I’m familiar with to a svg. Also I liked having scales for my axes. I feel like I can use the same D3 algorithm on different types of data with a relatively easy fix. This also implies helpful code readability for graphing. I also like how I can drop an SVG into a DOM and even combine it with frameworks like React if I wanted to. It’s very versatile.</li>
+            <li> As the data we’re visualizing gets larger in quantity, the abundance of svg elements can take a big toll on the processing load. Also, compared to the virtual DOM manipulation in React I don’t think direct DOM manipulation mixes practically with other frameworks if we were to expand this project. Lastly, I think the way we set position and dimensions of graph parts it’s very time consuming to align things, and processing the data is much quicker than graphing it. If I had to build some basic graphs I would find it easier to use a tool like C3 which uses D3 in the background but I think it’s an example of a more convenient way of dealing with the library. In terms of functionality I think D3 provides more than any other tool, I just found my experience with it clunky in terms of inserting exact DOM elements.</li>
+            <li>My graph has trouble showing axis values and a user might also have to follow what country a bar or dot links to. Also colors use a lot of green and red together as well as same tones of the same color which can be bad for certain types of Color blindness mentioned in the accessibility reading. Users who have trouble visually, especially color blindness, can have trouble with my graph. For visual learners my graph is accessible and the graphs cover most of the dashboard so the visuals aren’t small and very readable for people who may have trouble reading content on a screen.
+            </li>
+            <li>.I should’ve added axes and labeled ticks as well as changed the colors. In terms of not showing enough labels for my data such as ticks and axes, I can see the text on inspect element and not the browser. Also the top two bars of men graph1 don’t show years and scores which is a bug. I should’ve planned out more of a storyboarding approach to see how a person would use these graphs and identify use cases. After laying out the DOM elements I should see if it’s accessible using a resource like the WAVE Web Accessibility Evaluation tool. I should follow visual design principles.</li>
+        </ul>
+    </div>
     <script type="text/javascript" src="main.js"></script>
 </body>
 </html>
